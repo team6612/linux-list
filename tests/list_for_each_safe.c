@@ -25,8 +25,7 @@ int main(void)
     assert(!list_empty(&testlist));
 
     i = 0;
-    list_for_each_safe(li, lis, &testlist)
-    {
+    list_for_each_safe (li, lis, &testlist) {
         item = list_entry(li, struct listitem, list);
         assert(item->i == i);
         list_del(&item->list);

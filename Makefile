@@ -12,7 +12,13 @@ include common.mk
 CFLAGS = -I./include
 CFLAGS += -std=c99 -pedantic -Wall -W -Werror
 
+TESTS_SORT = \
+	insert-sort \
+	quick-sort \
+	merge-sort \
+
 TESTS = \
+	$(TESTS_SORT) \
     containerof \
     list_entry \
     list_init-explicit \
@@ -38,6 +44,8 @@ TESTS = \
     list_cut_position
 
 TESTS := $(addprefix tests/,$(TESTS))
+SORT_SRC := $(addprefix examples/,$(TESTS_SORT:=.c))
+SORT_TESTS := $(addprefix tests/,$(TESTS_SORT:=.c))
 # dependency of source files
 deps := $(TESTS:%:%.o.d)
 
@@ -52,7 +60,7 @@ $(TESTS_OK): %.ok: %
 
 # standard build rules
 .SUFFIXES: .o .c
-.c.o:
+.c.o: $(SORT_TESTS)
 	$(VECHO) "  CC\t$@\n"
 	$(Q)$(CC) -o $@ $(CFLAGS) -c -MMD -MF $@.d $<
 
@@ -60,8 +68,13 @@ $(TESTS): %: %.o
 	$(VECHO) "  LD\t$@\n"
 	$(Q)$(CC) -o $@ $^ $(LDFLAGS)
 
+$(SORT_TESTS): $(SORT_SRC)
+	cp $? tests/
+
 clean:
 	$(VECHO) "  Cleaning...\n"
-	$(Q)$(RM) $(TESTS) $(TESTS_OK) $(TESTS:=.o) $(TESTS:=.o.d)
+	$(Q)$(RM) $(TESTS) $(TESTS_OK) $(TESTS:=.o) $(TESTS:=.o.d) $(SORT_TESTS)
 
 -include $(deps)
+
+print-%  : ; @echo $* = $($*)
